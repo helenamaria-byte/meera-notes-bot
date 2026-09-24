@@ -1,0 +1,18 @@
+{
+  "name": "meera-notes-bot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Telegram bot that turns Meera's notes into draft posts in her voice using Gemini.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "set-webhook": "node --env-file=.env scripts/set-webhook.mjs",
+    "webhook-info": "node --env-file=.env scripts/set-webhook.mjs --info",
+    "try": "node --env-file=.env scripts/try-draft.mjs"
+  },
+  "dependencies": {
+    "@vercel/functions": "^2.0.0"
+  }
+}
