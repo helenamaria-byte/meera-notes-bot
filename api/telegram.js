@@ -33,8 +33,17 @@ async function handleMessage(message) {
 
   try {
     await sendTyping(chatId).catch(() => {});
-    const draft = await draftPost(text);
-    await sendMessage(chatId, draft, message.message_id);
+    const { post, checks } = await draftPost(text);
+    // The draft goes alone in its own message so it can be copied straight to LinkedIn.
+    await sendMessage(chatId, post, message.message_id);
+    if (checks) {
+      await sendMessage(
+        chatId,
+        checks.length
+          ? `Check before posting:\n${checks.map((c) => `• ${c}`).join("\n")}`
+          : "Nothing to check: everything in the draft comes from your note."
+      );
+    }
   } catch (err) {
     console.error("Drafting failed:", err);
     await sendMessage(chatId, "Sorry, I couldn't write a draft for that note. Please try again in a minute.")

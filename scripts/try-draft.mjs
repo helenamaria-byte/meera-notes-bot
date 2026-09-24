@@ -8,4 +8,9 @@ if (!note) {
   process.exit(1);
 }
 
-console.log(await draftPost(note));
+const { post, checks } = await draftPost(note);
+console.log(post);
+console.log("\n--- Check before posting ---");
+console.log(
+  !checks ? "(unavailable)" : checks.length ? checks.map((c) => `• ${c}`).join("\n") : "(nothing to check)"
+);
