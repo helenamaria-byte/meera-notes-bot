@@ -68,8 +68,10 @@ async function handleMessage(message) {
     const draft = result.news ? `${result.post}\n\n${newsVerifyBlock(result.news)}` : result.post;
     await sendMessage(chatId, draft, message.message_id);
 
+    // The score and reason sit above the checks, outside the draft, so the draft stays copyable.
+    const rating = `Score: ${result.score}/10. ${result.reason}`;
     const checks = checksMessage(result.checks);
-    if (checks) await sendMessage(chatId, checks);
+    await sendMessage(chatId, checks ? `${rating}\n\n${checks}` : rating);
   } catch (err) {
     console.error("Drafting failed:", err);
     await sendMessage(chatId, "Sorry, I couldn't write a draft for that note. Please try again in a minute.")
