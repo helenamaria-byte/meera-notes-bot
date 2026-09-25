@@ -1,5 +1,5 @@
 import { waitUntil } from "@vercel/functions";
-import { draftPost } from "../lib/gemini.js";
+import { draftPost, scoreNote, MIN_SCORE } from "../lib/gemini.js";
 import { sendMessage, sendTyping } from "../lib/telegram.js";
 
 function allowedChatIds() {
@@ -32,6 +32,20 @@ async function handleMessage(message) {
   }
 
   try {
+    await sendTyping(chatId).catch(() => {});
+
+    // Screen out reminders, fragments and thin notes before spending a draft on them.
+    const { score, reason } = await scoreNote(text);
+    console.log(`Note scored ${score}/10: ${reason}`);
+    if (score < MIN_SCORE) {
+      await sendMessage(
+        chatId,
+        `No draft for this one (${score}/10). ${reason}\n\nAdd more detail and send it again if you want a post from it.`,
+        message.message_id
+      );
+      return;
+    }
+
     await sendTyping(chatId).catch(() => {});
     const { post, checks } = await draftPost(text);
     // The draft goes alone in its own message so it can be copied straight to LinkedIn.
