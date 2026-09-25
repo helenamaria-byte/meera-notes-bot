@@ -74,8 +74,15 @@ async function handleMessage(message) {
     await sendMessage(chatId, checks ? `${rating}\n\n${checks}` : rating);
   } catch (err) {
     console.error("Drafting failed:", err);
-    await sendMessage(chatId, "Sorry, I couldn't write a draft for that note. Please try again in a minute.")
-      .catch((e) => console.error("Could not send error message:", e));
+    const quotaUsedUp = /Gemini API 429/.test(err.message) && /quota/i.test(err.message);
+    await sendMessage(
+      chatId,
+      quotaUsedUp
+        ? "Gemini's usage limit is used up, so I can't read notes right now. Your note wasn't saved: " +
+            "please send it again once the limit resets (usually after 12:30 pm India time), " +
+            "or turn on billing in Google AI Studio to raise the limit."
+        : "Sorry, I couldn't write a draft for that note. Please try again in a minute."
+    ).catch((e) => console.error("Could not send error message:", e));
   }
 }
 
